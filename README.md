@@ -6,13 +6,12 @@ close, clc
 %Stating constants 
 A = 0; %lamda
 PI = 4*atan(1);
-D = dx^2/4;
 N =50;
 
 %Creating disretization of x and y with N+1 segments
 %dx = dy
 dx = (2*PI)/(N+1);
-
+D = dx^2/4;
 
 %Setting up corrdinate template for x and y
 x = -PI:dx:PI;
