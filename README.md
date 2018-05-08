@@ -4,9 +4,9 @@
 close, clc
 
 %Stating constants 
-A = 0; %lamda
+A = 0; % With lambda = 0 we are solving Poisson's 2D equation
 PI = 4*atan(1);
-N =50;
+N = 75;
 
 %Creating disretization of x and y with N+1 segments
 %dx = dy
@@ -31,21 +31,24 @@ end
 F = zeros(N+2,N+2);
 for ii = 1:N+2
     for jj = 1:N+2
-        F(ii,jj) = cos((x(ii)+2*PI)/2)*sin((y(ii)+PI)/2);
+        F(ii,jj) = cos((x(ii)+2*PI)/2)*sin((y(jj)+PI)/2);
     end
 end
+
 %%
-% Evaluating the Gauss-Seidel method
+% Evaluating the Gauss-Seidel and SOR method
+% Gauss-Seidel is when w=1 
 tol = 10^-6;
 %Impementing max number of iterations that scales with changing N
-it = 10*N^2;
+it = 9*N^2;
 error = 1+tol;
 iterations = 0;
 err = zeros(N+1,N);
-
+tic
 while error > tol
     iterations = iterations+1;
     uold = U;
+    w = 1.7;
     for jj = 2:N+1
         for ii = 2:N+1
            %Updating within the boundaries except at Neumman BC
@@ -55,22 +58,26 @@ while error > tol
         U(N+2,jj) = (0.25*(2*U(N+1,jj)+U(N+2,jj-1)+U(N+2,jj+1))-D*F(N+2));
         for ii = 2:N+1
             %Calculating error from old u value to updated u value
-            if U(ii,jj) ~= 0 
+            if U(ii,jj) ~= 0
+                %Applying SOR 
+                U(ii,jj) = w*U(ii,jj)+(1-w)*uold(ii,jj);
                 err(ii,jj) = abs((U(ii,jj) - uold(ii,jj))/U(ii,jj)) * 100; 
             end 
         end
     end
    %Letting user know if you need more iterations to reach the tolerance  
-   % of10^-6
+   % of 10^-6
    if iterations > it 
    disp('Max iteration was reached before tolerance was reached'); 
    break 
    end
    error = max(max(err));
    if error <= tol 
-   fprintf('\n Tolerance reached at %d iterations \n',iterations);
+   fprintf('Tolerance reached at %d iterations \n',iterations);
    end
 end
+toc
+
 %%
 %Plotting
 [xx,yy]=meshgrid(x,y');
