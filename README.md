@@ -56,7 +56,7 @@ tic
 while error > tol
     iterations = iterations+1;
     uold = U;
-    w = 1.79; %For SOR w = 1.78 is nominal for different N values
+    w = 1; %For SOR w = 1.78 is nominal for different N values
     for jj = 2:N+1
         for ii = 2:N+1
            %Updating within the boundaries except at Neumman BC
@@ -98,4 +98,4 @@ toc
 surf(yy,xx,U);
 xlabel('x axis')
 ylabel('y axis')
-title('SOR N=50 w = 1.79')
+title('Gauss-Seidel N=100 F=0')
