@@ -3,9 +3,8 @@
 %Project AHc1-1
 close, clc
 
-
 %Stating constants 
-% With lambda = 0 we are solving Poisson's 2D equation
+%With lambda = 0 we are solving Poisson's 2D equation
 PI = 4*atan(1);
 % ax, bx, ay, and by were left as is for the sake of modularity
 ax = -PI;
@@ -13,7 +12,7 @@ bx = PI;
 ay = -PI;
 by = PI;
 %Number of Segments
-N = 75;
+N = 50;
 
 %Creating discretization of x and y with N+1 segments
 %In this case solving for Poisson with dx = dy
@@ -49,7 +48,7 @@ end
 tol = 10^-6;
 %Impementing max number of iterations that scales with changing N 
 %Higher N requires higer amounts of iterations to reach the tolerance
-it = 9*N^2;
+it = 8*N^2;
 error = 1+tol;
 iterations = 0;
 err = zeros(N+1,N);
@@ -57,19 +56,22 @@ tic
 while error > tol
     iterations = iterations+1;
     uold = U;
-    w = 1.7; %For SOR w = 1.7 is nominal for different N values
+    w = 1.79; %For SOR w = 1.78 is nominal for different N values
     for jj = 2:N+1
         for ii = 2:N+1
            %Updating within the boundaries except at Neumman BC
            U(ii,jj) = (0.25*(U(ii-1,jj)+U(ii+1,jj)+U(ii,jj-1)+U(ii,jj+1))-D*F(ii,jj));                      
         end
-        %Applying Neummann BC
+        %Applying Neummann BC at x=bx
         U(N+2,jj) = (0.25*(2*U(N+1,jj)+U(N+2,jj-1)+U(N+2,jj+1))-D*F(N+2));
         for ii = 2:N+1
             %Calculating error from old u value to updated u value
             if U(ii,jj) ~= 0
-                %Applying SOR 
+                %Applying SOR with the concept of eigenvalues we
+                %use the form w*lambda(i)+1-w
                 U(ii,jj) = w*U(ii,jj)+(1-w)*uold(ii,jj);
+                %Calculating the error that exists from the updating U and
+                %the old values of u aka uold
                 err(ii,jj) = abs((U(ii,jj) - uold(ii,jj))/U(ii,jj)) * 100; 
             end 
         end
@@ -81,6 +83,9 @@ while error > tol
    break 
    end
    error = max(max(err));
+   % Getting the amount of iterations in order to confirm that SOR 
+   % Will decrease the amount of iterations to reach convergance at the
+   % same N value 
    if error <= tol 
    fprintf('Tolerance reached at %d iterations \n',iterations);
    end
@@ -93,3 +98,4 @@ toc
 surf(yy,xx,U);
 xlabel('x axis')
 ylabel('y axis')
+title('SOR N=50 w = 1.79')
